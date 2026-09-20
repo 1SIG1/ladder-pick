@@ -1,1 +1,661 @@
-<!doctype html><html lang="ko"><meta charset="utf-8"><title>사다리타기 준비 중</title><p>파일을 올리는 중입니다.</p></html>
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="출발점을 선택해 천천히 경로를 따라가는 6인용 사다리타기">
+  <title>사다리타기</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23101523'/%3E%3Cpath d='M20 12v40M44 12v40M20 22h24M20 34h24M20 46h24' stroke='%236ee7ff' stroke-width='6' stroke-linecap='round'/%3E%3C/svg%3E">
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #f7f9ff;
+      --muted: #9aa5bd;
+      --panel: rgba(16, 21, 35, 0.86);
+      --panel-edge: rgba(255, 255, 255, 0.09);
+      --rail: #58647c;
+      --cyan: #6ee7ff;
+      --violet: #a78bfa;
+      --yellow: #ffd166;
+      --shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      font-family: Inter, Pretendard, "Noto Sans KR", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 18% 12%, rgba(62, 117, 220, 0.24), transparent 34rem),
+        radial-gradient(circle at 84% 88%, rgba(139, 92, 246, 0.18), transparent 32rem),
+        #080b13;
+    }
+
+    button { font: inherit; }
+
+    .app {
+      width: min(960px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 42px 0 54px;
+    }
+
+    header {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 9px;
+      color: var(--cyan);
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 14px currentColor;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2rem, 5vw, 3.4rem);
+      line-height: 1;
+      letter-spacing: -0.055em;
+    }
+
+    .intro {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1.55;
+    }
+
+    .tool-group {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 9px;
+    }
+
+    .tool-button {
+      flex: 0 0 auto;
+      min-height: 44px;
+      padding: 0 17px;
+      color: #dce3f2;
+      font-weight: 750;
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      border-radius: 13px;
+      background: rgba(255, 255, 255, 0.055);
+      cursor: pointer;
+      transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+    }
+
+    .tool-button:hover:not(:disabled) {
+      border-color: rgba(110, 231, 255, 0.5);
+      background: rgba(110, 231, 255, 0.09);
+      transform: translateY(-1px);
+    }
+
+    .tool-button:disabled { opacity: 0.45; cursor: wait; }
+
+    .tool-button.clear:hover:not(:disabled) {
+      border-color: rgba(255, 122, 138, 0.5);
+      background: rgba(255, 122, 138, 0.09);
+    }
+
+    .board {
+      position: relative;
+      overflow: hidden;
+      padding: 22px clamp(12px, 3vw, 28px) 24px;
+      border: 1px solid var(--panel-edge);
+      border-radius: 26px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .board::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(110, 231, 255, 0.5), transparent);
+    }
+
+    .start-grid,
+    .result-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      position: relative;
+      z-index: 2;
+    }
+
+    .start-grid { margin-bottom: 6px; }
+
+    .start {
+      justify-self: center;
+      width: clamp(40px, 7vw, 54px);
+      aspect-ratio: 1;
+      border: 1px solid rgba(110, 231, 255, 0.34);
+      border-radius: 50%;
+      color: var(--ink);
+      background: linear-gradient(145deg, rgba(110, 231, 255, 0.16), rgba(167, 139, 250, 0.11));
+      box-shadow: inset 0 1px rgba(255,255,255,0.12), 0 6px 22px rgba(0,0,0,0.23);
+      cursor: pointer;
+      font-weight: 850;
+      font-size: 1rem;
+      transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+    }
+
+    .start:hover:not(:disabled), .start:focus-visible {
+      outline: none;
+      transform: translateY(-3px);
+      border-color: var(--cyan);
+      box-shadow: 0 0 0 4px rgba(110, 231, 255, 0.1), 0 10px 26px rgba(0,0,0,0.3);
+    }
+
+    .start.active {
+      color: #071016;
+      border-color: var(--cyan);
+      background: var(--cyan);
+      box-shadow: 0 0 24px rgba(110, 231, 255, 0.42);
+    }
+
+    .start:disabled:not(.active) { opacity: 0.44; cursor: wait; }
+
+    .ladder-wrap { position: relative; }
+
+    svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      overflow: visible;
+    }
+
+    .rail, .rung {
+      fill: none;
+      stroke: var(--rail);
+      stroke-width: 7;
+      stroke-linecap: round;
+    }
+
+    .rail { opacity: 0.76; }
+    .rung { stroke: #7b879e; }
+
+    .rung-slot { cursor: pointer; }
+    .rung-slot .hit-area { fill: transparent; }
+    .rung-slot .slot-preview {
+      pointer-events: none;
+      stroke: var(--cyan);
+      stroke-width: 7;
+      stroke-linecap: round;
+      opacity: 0;
+      transition: opacity 120ms ease;
+    }
+
+    .rung-slot:hover .slot-preview,
+    .rung-slot:focus .slot-preview {
+      opacity: 0.42;
+    }
+
+    .rung-slot.filled:hover .slot-preview,
+    .rung-slot.filled:focus .slot-preview {
+      stroke: #ff7a8a;
+      opacity: 0.72;
+    }
+
+    .rung-slot:focus { outline: none; }
+    .editing-disabled .rung-slot { pointer-events: none; }
+
+    .route-shadow, .route {
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .route-shadow {
+      stroke: rgba(110, 231, 255, 0.14);
+      stroke-width: 18;
+    }
+
+    .route {
+      stroke: url(#routeGradient);
+      stroke-width: 8;
+      filter: url(#glow);
+    }
+
+    .traveler {
+      fill: #fff;
+      stroke: var(--cyan);
+      stroke-width: 5;
+      filter: url(#dotGlow);
+    }
+
+    .result-grid { margin-top: 7px; }
+
+    .result {
+      justify-self: center;
+      display: grid;
+      place-items: center;
+      width: clamp(42px, 8vw, 62px);
+      min-height: clamp(40px, 7vw, 52px);
+      color: var(--muted);
+      font-weight: 850;
+      border: 1px solid rgba(255,255,255,0.09);
+      border-radius: 14px;
+      background: rgba(255,255,255,0.035);
+      transition: color 220ms ease, border-color 220ms ease, background 220ms ease, transform 220ms ease, box-shadow 220ms ease;
+    }
+
+    .result.arrived {
+      color: #171007;
+      border-color: var(--yellow);
+      background: var(--yellow);
+      transform: translateY(-5px) scale(1.07);
+      box-shadow: 0 0 0 5px rgba(255, 209, 102, 0.11), 0 10px 34px rgba(255, 209, 102, 0.28);
+      animation: arrive 520ms ease-out;
+    }
+
+    @keyframes arrive {
+      0% { transform: translateY(4px) scale(0.82); }
+      65% { transform: translateY(-7px) scale(1.12); }
+      100% { transform: translateY(-5px) scale(1.07); }
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 31px;
+      margin: 20px 0 0;
+      color: var(--muted);
+      font-size: 0.93rem;
+      font-weight: 650;
+      text-align: center;
+    }
+
+    .status strong { color: var(--yellow); }
+
+    .legend {
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      margin-top: 18px;
+      color: #77839b;
+      font-size: 0.78rem;
+    }
+
+    .legend span { display: inline-flex; align-items: center; gap: 7px; }
+
+    .legend i {
+      width: 18px;
+      height: 3px;
+      border-radius: 9px;
+      background: var(--rail);
+    }
+
+    .legend span:last-child i { background: linear-gradient(90deg, var(--cyan), var(--violet)); }
+
+    @media (max-width: 640px) {
+      .app { width: min(100% - 20px, 960px); padding: 24px 0 32px; }
+      header { align-items: start; }
+      .intro { font-size: 0.92rem; }
+      .tool-button { padding: 0 13px; }
+      .board { border-radius: 20px; padding-inline: 8px; }
+      .rail, .rung { stroke-width: 8; }
+      .route { stroke-width: 10; }
+      .legend { display: none; }
+    }
+
+    @media (max-width: 420px) {
+      header { display: grid; }
+      .tool-group { justify-content: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <div>
+        <p class="eyebrow">LADDER PICK</p>
+        <h1>사다리타기</h1>
+        <p class="intro">빈 곳을 눌러 가로줄을 더하고, 다시 눌러 지워 보세요.</p>
+      </div>
+      <div class="tool-group" aria-label="사다리 편집 도구">
+        <button class="tool-button" id="randomize" type="button">무작위로 긋기</button>
+        <button class="tool-button clear" id="clearAll" type="button">모두 지우기</button>
+      </div>
+    </header>
+
+    <section class="board" aria-labelledby="boardTitle">
+      <h2 id="boardTitle" hidden>6인용 사다리</h2>
+      <div class="start-grid" id="startGrid" aria-label="출발점"></div>
+
+      <div class="ladder-wrap">
+        <svg id="ladder" viewBox="0 0 600 450" role="group" aria-label="가로줄을 직접 편집할 수 있는 사다리">
+          <defs>
+            <linearGradient id="routeGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#6ee7ff"/>
+              <stop offset="1" stop-color="#a78bfa"/>
+            </linearGradient>
+            <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="3" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <filter id="dotGlow" x="-100%" y="-100%" width="300%" height="300%">
+              <feGaussianBlur stdDeviation="5" result="blur"/>
+              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+          </defs>
+          <g id="ladderLines"></g>
+          <g id="animationLayer"></g>
+          <g id="interactionLayer"></g>
+        </svg>
+      </div>
+
+      <div class="result-grid" id="resultGrid" aria-label="도착점"></div>
+      <p class="status" id="status" aria-live="polite">출발점을 선택해 주세요</p>
+    </section>
+
+    <div class="legend" aria-hidden="true">
+      <span><i></i>사다리</span>
+      <span><i></i>선택한 경로</span>
+    </div>
+  </main>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const NS = "http://www.w3.org/2000/svg";
+      const RAIL_COUNT = 6;
+      const RUNG_COUNT = 10;
+      const TOP = 12;
+      const BOTTOM = 438;
+      const X_POSITIONS = [50, 150, 250, 350, 450, 550];
+      const LEVELS = Array.from({ length: 17 }, (_, index) => 42 + index * 22);
+
+      const startGrid = document.querySelector("#startGrid");
+      const resultGrid = document.querySelector("#resultGrid");
+      const ladder = document.querySelector("#ladder");
+      const ladderLines = document.querySelector("#ladderLines");
+      const animationLayer = document.querySelector("#animationLayer");
+      const interactionLayer = document.querySelector("#interactionLayer");
+      const randomizeButton = document.querySelector("#randomize");
+      const clearAllButton = document.querySelector("#clearAll");
+      const status = document.querySelector("#status");
+
+      let rungs = [];
+      let running = false;
+      let animationFrame = 0;
+
+      function secureRandomInt(max) {
+        const limit = Math.floor(0x100000000 / max) * max;
+        const value = new Uint32Array(1);
+        do {
+          crypto.getRandomValues(value);
+        } while (value[0] >= limit);
+        return value[0] % max;
+      }
+
+      function svgElement(name, attributes = {}) {
+        const element = document.createElementNS(NS, name);
+        for (const [key, value] of Object.entries(attributes)) {
+          element.setAttribute(key, value);
+        }
+        return element;
+      }
+
+      function createControls() {
+        startGrid.replaceChildren();
+        resultGrid.replaceChildren();
+
+        for (let index = 0; index < RAIL_COUNT; index += 1) {
+          const start = document.createElement("button");
+          start.type = "button";
+          start.className = "start";
+          start.textContent = String(index + 1);
+          start.setAttribute("aria-label", `${index + 1}번 출발`);
+          start.addEventListener("click", () => traceFrom(index));
+          startGrid.append(start);
+
+          const result = document.createElement("div");
+          result.className = "result";
+          result.textContent = String(index + 1);
+          result.setAttribute("aria-label", `${index + 1}번 도착점`);
+          resultGrid.append(result);
+        }
+      }
+
+      function generateRungs() {
+        const placed = [];
+        const occupiedByLevel = new Map();
+
+        while (placed.length < RUNG_COUNT) {
+          const candidates = [];
+          for (let levelIndex = 0; levelIndex < LEVELS.length; levelIndex += 1) {
+            const occupied = occupiedByLevel.get(levelIndex) || new Set();
+            for (let left = 0; left < RAIL_COUNT - 1; left += 1) {
+              const touchesAnother = occupied.has(left) || occupied.has(left - 1) || occupied.has(left + 1);
+              if (!touchesAnother) candidates.push({ levelIndex, left });
+            }
+          }
+
+          const choice = candidates[secureRandomInt(candidates.length)];
+          if (!occupiedByLevel.has(choice.levelIndex)) {
+            occupiedByLevel.set(choice.levelIndex, new Set());
+          }
+          occupiedByLevel.get(choice.levelIndex).add(choice.left);
+          placed.push({ left: choice.left, y: LEVELS[choice.levelIndex] });
+        }
+
+        return placed.sort((a, b) => a.y - b.y || a.left - b.left);
+      }
+
+      function drawLadder() {
+        ladderLines.replaceChildren();
+        interactionLayer.replaceChildren();
+
+        for (const x of X_POSITIONS) {
+          ladderLines.append(svgElement("line", {
+            class: "rail",
+            x1: x,
+            y1: TOP,
+            x2: x,
+            y2: BOTTOM
+          }));
+        }
+
+        for (const rung of rungs) {
+          ladderLines.append(svgElement("line", {
+            class: "rung",
+            x1: X_POSITIONS[rung.left],
+            y1: rung.y,
+            x2: X_POSITIONS[rung.left + 1],
+            y2: rung.y
+          }));
+        }
+
+        for (const y of LEVELS) {
+          for (let left = 0; left < RAIL_COUNT - 1; left += 1) {
+            const filled = rungs.some(rung => rung.left === left && rung.y === y);
+            const slot = svgElement("g", {
+              class: `rung-slot${filled ? " filled" : ""}`,
+              role: "button",
+              tabindex: "0",
+              "aria-pressed": String(filled),
+              "aria-label": `${left + 1}번과 ${left + 2}번 세로줄 사이 가로줄 ${filled ? "지우기" : "추가"}`
+            });
+            slot.append(
+              svgElement("rect", {
+                class: "hit-area",
+                x: X_POSITIONS[left] + 5,
+                y: y - 10,
+                width: X_POSITIONS[left + 1] - X_POSITIONS[left] - 10,
+                height: 20,
+                rx: 10
+              }),
+              svgElement("line", {
+                class: "slot-preview",
+                x1: X_POSITIONS[left] + 8,
+                y1: y,
+                x2: X_POSITIONS[left + 1] - 8,
+                y2: y
+              })
+            );
+            slot.addEventListener("click", () => toggleRung(left, y));
+            slot.addEventListener("keydown", event => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                toggleRung(left, y);
+              }
+            });
+            interactionLayer.append(slot);
+          }
+        }
+      }
+
+      function toggleRung(left, y) {
+        if (running) return;
+        clearOutcome();
+
+        const existingIndex = rungs.findIndex(rung => rung.left === left && rung.y === y);
+        if (existingIndex >= 0) {
+          rungs.splice(existingIndex, 1);
+          drawLadder();
+          status.textContent = `가로줄을 지웠습니다 · 현재 ${rungs.length}개`;
+          return;
+        }
+
+        const touchesAnother = rungs.some(rung => rung.y === y && Math.abs(rung.left - left) === 1);
+        if (touchesAnother) {
+          status.textContent = "같은 높이에서 가로줄끼리 이어 붙일 수 없어요";
+          return;
+        }
+
+        rungs.push({ left, y });
+        rungs.sort((a, b) => a.y - b.y || a.left - b.left);
+        drawLadder();
+        status.textContent = `가로줄을 추가했습니다 · 현재 ${rungs.length}개`;
+      }
+
+      function buildRoute(startIndex) {
+        let current = startIndex;
+        let d = `M ${X_POSITIONS[current]} ${TOP}`;
+
+        for (const rung of rungs) {
+          if (rung.left === current) {
+            d += ` L ${X_POSITIONS[current]} ${rung.y} L ${X_POSITIONS[current + 1]} ${rung.y}`;
+            current += 1;
+          } else if (rung.left + 1 === current) {
+            d += ` L ${X_POSITIONS[current]} ${rung.y} L ${X_POSITIONS[current - 1]} ${rung.y}`;
+            current -= 1;
+          }
+        }
+
+        d += ` L ${X_POSITIONS[current]} ${BOTTOM}`;
+        return { d, destination: current };
+      }
+
+      function setRunningState(isRunning, selectedIndex = -1) {
+        running = isRunning;
+        [...startGrid.children].forEach((button, index) => {
+          button.disabled = isRunning;
+          button.classList.toggle("active", isRunning && index === selectedIndex);
+        });
+        randomizeButton.disabled = isRunning;
+        clearAllButton.disabled = isRunning;
+        ladder.classList.toggle("editing-disabled", isRunning);
+      }
+
+      function clearOutcome() {
+        cancelAnimationFrame(animationFrame);
+        animationLayer.replaceChildren();
+        document.querySelectorAll(".result").forEach(item => item.classList.remove("arrived"));
+        document.querySelectorAll(".start").forEach(item => item.classList.remove("active"));
+      }
+
+      function traceFrom(startIndex) {
+        if (running) return;
+        clearOutcome();
+        setRunningState(true, startIndex);
+        status.textContent = `${startIndex + 1}번 경로를 따라가는 중…`;
+
+        const { d, destination } = buildRoute(startIndex);
+        const shadow = svgElement("path", { class: "route-shadow", d });
+        const route = svgElement("path", { class: "route", d });
+        const dot = svgElement("circle", { class: "traveler", r: 7, cx: X_POSITIONS[startIndex], cy: TOP });
+        animationLayer.append(shadow, route, dot);
+
+        const length = route.getTotalLength();
+        route.style.strokeDasharray = String(length);
+        route.style.strokeDashoffset = String(length);
+        shadow.style.strokeDasharray = String(length);
+        shadow.style.strokeDashoffset = String(length);
+
+        const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+        const duration = reduceMotion ? 850 : 4300;
+        const startedAt = performance.now();
+
+        function animate(now) {
+          const progress = Math.min((now - startedAt) / duration, 1);
+          const eased = 1 - Math.pow(1 - progress, 2);
+          const traveled = length * eased;
+          const point = route.getPointAtLength(traveled);
+
+          route.style.strokeDashoffset = String(length - traveled);
+          shadow.style.strokeDashoffset = String(length - traveled);
+          dot.setAttribute("cx", point.x);
+          dot.setAttribute("cy", point.y);
+
+          if (progress < 1) {
+            animationFrame = requestAnimationFrame(animate);
+            return;
+          }
+
+          document.querySelectorAll(".result")[destination].classList.add("arrived");
+          status.innerHTML = `${startIndex + 1}번은 <strong>${destination + 1}번 칸</strong>에 도착했습니다`;
+          setRunningState(false);
+          document.querySelectorAll(".start")[startIndex].classList.add("active");
+        }
+
+        animationFrame = requestAnimationFrame(animate);
+      }
+
+      function makeRandomLadder() {
+        if (running) return;
+        clearOutcome();
+        rungs = generateRungs();
+        drawLadder();
+        status.textContent = "가로줄 10개를 무작위로 그었습니다";
+      }
+
+      function clearAllRungs() {
+        if (running) return;
+        clearOutcome();
+        rungs = [];
+        drawLadder();
+        status.textContent = "모든 가로줄을 지웠습니다 · 빈 곳을 눌러 직접 그려 보세요";
+      }
+
+      randomizeButton.addEventListener("click", makeRandomLadder);
+      clearAllButton.addEventListener("click", clearAllRungs);
+      createControls();
+      makeRandomLadder();
+    })();
+  </script>
+</body>
+</html>
