@@ -36,7 +36,7 @@
     button { font: inherit; }
 
     .app {
-      width: min(960px, calc(100% - 32px));
+      width: min(1100px, calc(100% - 32px));
       margin: 0 auto;
       padding: 42px 0 54px;
     }
@@ -90,6 +90,47 @@
       gap: 9px;
     }
 
+    .count-control {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      min-height: 44px;
+      padding: 0 10px 0 14px;
+      color: var(--muted);
+      font-size: 0.88rem;
+      font-weight: 750;
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      border-radius: 13px;
+      background: rgba(255, 255, 255, 0.055);
+    }
+
+    .count-control select {
+      min-width: 64px;
+      min-height: 32px;
+      padding: 0 9px;
+      color: var(--ink);
+      font-weight: 800;
+      border: 1px solid rgba(110, 231, 255, 0.3);
+      border-radius: 9px;
+      background: #111827;
+      cursor: pointer;
+    }
+
+    .rung-count-control { min-width: 220px; }
+
+    .rung-count-control input[type="range"] {
+      width: 112px;
+      accent-color: var(--cyan);
+      cursor: pointer;
+    }
+
+    .rung-count-value {
+      min-width: 2.5ch;
+      color: var(--cyan);
+      font-variant-numeric: tabular-nums;
+      text-align: right;
+    }
+
     .tool-button {
       flex: 0 0 auto;
       min-height: 44px;
@@ -116,6 +157,24 @@
       background: rgba(255, 122, 138, 0.09);
     }
 
+    .tool-button.primary {
+      color: #071016;
+      border-color: var(--cyan);
+      background: var(--cyan);
+    }
+
+    .tool-button.primary:hover:not(:disabled) {
+      color: #071016;
+      background: #9aeeff;
+      box-shadow: 0 8px 24px rgba(110, 231, 255, 0.18);
+    }
+
+    .tool-button.is-hiding {
+      color: var(--yellow);
+      border-color: rgba(255, 209, 102, 0.5);
+      background: rgba(255, 209, 102, 0.08);
+    }
+
     .board {
       position: relative;
       overflow: hidden;
@@ -135,15 +194,56 @@
       background: linear-gradient(90deg, transparent, rgba(110, 231, 255, 0.5), transparent);
     }
 
+    .stage-scroll {
+      overflow-x: auto;
+      padding: 2px 2px 9px;
+      scrollbar-color: rgba(110, 231, 255, 0.35) transparent;
+    }
+
+    .ladder-stage { min-width: 680px; }
+
     .start-grid,
     .result-grid {
       display: grid;
-      grid-template-columns: repeat(6, minmax(0, 1fr));
       position: relative;
       z-index: 2;
     }
 
     .start-grid { margin-bottom: 6px; }
+
+    .participant-cell {
+      display: grid;
+      justify-items: center;
+      gap: 9px;
+      min-width: 0;
+      padding: 0 5px;
+    }
+
+    .entry-input {
+      width: 100%;
+      min-width: 0;
+      height: 38px;
+      padding: 0 9px;
+      color: var(--ink);
+      font-size: 0.88rem;
+      font-weight: 700;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 10px;
+      outline: none;
+      background: rgba(255,255,255,0.045);
+      transition: border-color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+    }
+
+    .entry-input::placeholder { color: #6f7a91; }
+
+    .entry-input:focus {
+      border-color: rgba(110, 231, 255, 0.7);
+      background: rgba(110, 231, 255, 0.07);
+      box-shadow: 0 0 0 3px rgba(110, 231, 255, 0.09);
+    }
+
+    .entry-input:disabled { opacity: 0.55; }
 
     .start {
       justify-self: center;
@@ -195,6 +295,15 @@
     .rail { opacity: 0.76; }
     .rung { stroke: #7b879e; }
 
+    .rungs-hidden .rung {
+      opacity: 0;
+    }
+
+    .rungs-hidden .rung-slot {
+      pointer-events: none;
+      opacity: 0;
+    }
+
     .rung-slot { cursor: pointer; }
     .rung-slot .hit-area { fill: transparent; }
     .rung-slot .slot-preview {
@@ -232,7 +341,6 @@
     }
 
     .route {
-      stroke: url(#routeGradient);
       stroke-width: 8;
       filter: url(#glow);
     }
@@ -247,11 +355,12 @@
     .result-grid { margin-top: 7px; }
 
     .result {
-      justify-self: center;
       display: grid;
       place-items: center;
-      width: clamp(42px, 8vw, 62px);
-      min-height: clamp(40px, 7vw, 52px);
+      min-width: 0;
+      min-height: 52px;
+      margin: 0 5px;
+      padding: 6px;
       color: var(--muted);
       font-weight: 850;
       border: 1px solid rgba(255,255,255,0.09);
@@ -260,12 +369,20 @@
       transition: color 220ms ease, border-color 220ms ease, background 220ms ease, transform 220ms ease, box-shadow 220ms ease;
     }
 
+    .result-input { background: rgba(8, 11, 19, 0.45); }
+
+    .result.arrived .result-input {
+      color: #171007;
+      border-color: rgba(23, 16, 7, 0.2);
+      background: rgba(255,255,255,0.38);
+    }
+
     .result.arrived {
       color: #171007;
-      border-color: var(--yellow);
-      background: var(--yellow);
+      border-color: var(--arrival-color, var(--yellow));
+      background: color-mix(in srgb, var(--arrival-color, var(--yellow)) 76%, white);
       transform: translateY(-5px) scale(1.07);
-      box-shadow: 0 0 0 5px rgba(255, 209, 102, 0.11), 0 10px 34px rgba(255, 209, 102, 0.28);
+      box-shadow: 0 0 0 5px color-mix(in srgb, var(--arrival-color, var(--yellow)) 15%, transparent), 0 10px 34px rgba(0, 0, 0, 0.28);
       animation: arrive 520ms ease-out;
     }
 
@@ -289,6 +406,270 @@
 
     .status strong { color: var(--yellow); }
 
+    .summary {
+      margin-top: 20px;
+      padding: 18px;
+      border: 1px solid rgba(110, 231, 255, 0.2);
+      border-radius: 18px;
+      background: rgba(7, 12, 24, 0.58);
+    }
+
+    .summary[hidden] { display: none; }
+
+    .summary h3 {
+      margin: 0 0 13px;
+      font-size: 1rem;
+      letter-spacing: -0.02em;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 9px;
+    }
+
+    .summary-item {
+      display: grid;
+      grid-template-columns: 12px minmax(0, 1fr) auto minmax(0, 1fr);
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
+      padding: 11px 12px;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      background: rgba(255,255,255,0.035);
+    }
+
+    .summary-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--person-color);
+      box-shadow: 0 0 12px var(--person-color);
+    }
+
+    .summary-name,
+    .summary-result {
+      overflow: hidden;
+      font-size: 0.88rem;
+      font-weight: 750;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .summary-result { color: var(--person-color); }
+    .summary-arrow { color: #69758d; }
+
+    .experiment {
+      margin-top: 24px;
+      padding: clamp(20px, 4vw, 30px);
+      border: 1px solid var(--panel-edge);
+      border-radius: 24px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    .experiment-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 18px;
+    }
+
+    .experiment-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 9px;
+    }
+
+    .experiment h2 {
+      margin: 0;
+      font-size: clamp(1.35rem, 3vw, 1.8rem);
+      letter-spacing: -0.035em;
+    }
+
+    .experiment-copy {
+      margin: 7px 0 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+      line-height: 1.55;
+    }
+
+    .experiment-progress {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 17px;
+    }
+
+    .experiment-progress[hidden] { display: none; }
+
+    progress {
+      width: 100%;
+      height: 8px;
+      overflow: hidden;
+      border: 0;
+      border-radius: 99px;
+      background: rgba(255,255,255,0.08);
+    }
+
+    progress::-webkit-progress-bar { background: rgba(255,255,255,0.08); }
+    progress::-webkit-progress-value { background: linear-gradient(90deg, var(--cyan), var(--violet)); }
+    progress::-moz-progress-bar { background: linear-gradient(90deg, var(--cyan), var(--violet)); }
+
+    .experiment-progress span {
+      min-width: 4ch;
+      color: var(--cyan);
+      font-size: 0.82rem;
+      font-weight: 800;
+      text-align: right;
+    }
+
+    .experiment-comparison {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .experiment-panel {
+      min-width: 0;
+      padding: 14px;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px;
+      background: rgba(7, 12, 24, 0.36);
+    }
+
+    .experiment-panel-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .experiment-panel h3 {
+      margin: 0;
+      font-size: 0.98rem;
+    }
+
+    .experiment-meta {
+      margin: 0;
+      color: #7f8aa1;
+      font-size: 0.74rem;
+      font-weight: 700;
+      text-align: right;
+    }
+
+    .heatmap-wrap {
+      overflow-x: auto;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+    }
+
+    .heatmap {
+      width: 100%;
+      min-width: 620px;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .heatmap th,
+    .heatmap td {
+      padding: 12px 10px;
+      text-align: center;
+      border-right: 1px solid rgba(255,255,255,0.07);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+    }
+
+    .heatmap tr:last-child th,
+    .heatmap tr:last-child td { border-bottom: 0; }
+
+    .heatmap th:last-child,
+    .heatmap td:last-child { border-right: 0; }
+
+    .heatmap thead th {
+      color: #aeb8cc;
+      font-size: 0.78rem;
+      font-weight: 800;
+      background: rgba(255,255,255,0.045);
+    }
+
+    .heatmap tbody th {
+      color: #d9e0ee;
+      font-size: 0.82rem;
+      font-weight: 800;
+      white-space: nowrap;
+      background: rgba(255,255,255,0.035);
+    }
+
+    .heatmap td {
+      color: #f7fbff;
+      font-size: 0.88rem;
+      font-weight: 850;
+    }
+
+    .heatmap-count {
+      display: block;
+      margin-top: 3px;
+      color: rgba(255,255,255,0.68);
+      font-size: 0.68rem;
+      font-weight: 650;
+    }
+
+    .experiment-empty {
+      margin: 0;
+      padding: 30px 16px;
+      color: #7f8aa1;
+      text-align: center;
+    }
+
+    .auto-chart-panel {
+      margin-top: 14px;
+      padding: clamp(14px, 3vw, 20px);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px;
+      background: rgba(7, 12, 24, 0.36);
+    }
+
+    .auto-chart-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+
+    .auto-chart-head h3 { margin: 0; font-size: 0.98rem; }
+
+    .auto-chart-wrap {
+      overflow-x: auto;
+      min-height: 310px;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      background: rgba(4, 8, 17, 0.42);
+    }
+
+    .auto-chart {
+      display: block;
+      width: 100%;
+      min-width: 680px;
+      height: auto;
+    }
+
+    .chart-grid { stroke: rgba(255,255,255,0.08); stroke-width: 1; }
+    .chart-axis { stroke: rgba(255,255,255,0.28); stroke-width: 1.5; }
+    .chart-label { fill: #8f9ab1; font-size: 12px; font-weight: 650; }
+    .chart-fair-label { fill: var(--yellow); font-size: 12px; font-weight: 750; }
+    .chart-fair { stroke: var(--yellow); stroke-width: 2; stroke-dasharray: 7 7; }
+    .chart-line { fill: none; stroke: var(--cyan); stroke-width: 4; stroke-linejoin: round; stroke-linecap: round; }
+    .chart-point { fill: #09111c; stroke: var(--cyan); stroke-width: 4; }
+    .chart-value { fill: #eafaff; font-size: 12px; font-weight: 800; text-anchor: middle; }
+
     .legend {
       display: flex;
       justify-content: center;
@@ -310,14 +691,20 @@
     .legend span:last-child i { background: linear-gradient(90deg, var(--cyan), var(--violet)); }
 
     @media (max-width: 640px) {
-      .app { width: min(100% - 20px, 960px); padding: 24px 0 32px; }
+      .app { width: min(100% - 20px, 1100px); padding: 24px 0 32px; }
       header { align-items: start; }
       .intro { font-size: 0.92rem; }
       .tool-button { padding: 0 13px; }
       .board { border-radius: 20px; padding-inline: 8px; }
+      .ladder-stage { min-width: 640px; }
       .rail, .rung { stroke-width: 8; }
       .route { stroke-width: 10; }
       .legend { display: none; }
+      .experiment-head { align-items: start; flex-direction: column; }
+      .experiment-actions { justify-content: flex-start; }
+      .experiment-comparison { grid-template-columns: 1fr; }
+      .rung-count-control { width: 100%; }
+      .rung-count-control input[type="range"] { flex: 1; }
     }
 
     @media (max-width: 420px) {
@@ -335,45 +722,126 @@
         <p class="intro">빈 곳을 눌러 가로줄을 더하고, 다시 눌러 지워 보세요.</p>
       </div>
       <div class="tool-group" aria-label="사다리 편집 도구">
+        <label class="count-control" for="participantCount">
+          인원
+          <select id="participantCount" aria-label="참가 인원">
+            <option value="2">2명</option>
+            <option value="3">3명</option>
+            <option value="4">4명</option>
+            <option value="5">5명</option>
+            <option value="6" selected>6명</option>
+            <option value="7">7명</option>
+            <option value="8">8명</option>
+          </select>
+        </label>
+        <label class="count-control rung-count-control" for="rungCount">
+          가로줄
+          <input id="rungCount" type="range" min="1" max="50" value="10" aria-label="가로줄 개수">
+          <strong class="rung-count-value" id="rungCountValue">10개</strong>
+        </label>
         <button class="tool-button" id="randomize" type="button">무작위로 긋기</button>
         <button class="tool-button clear" id="clearAll" type="button">모두 지우기</button>
+        <button class="tool-button" id="hideRungs" type="button">가리기</button>
+        <button class="tool-button primary" id="startAll" type="button">모두 출발</button>
       </div>
     </header>
 
     <section class="board" aria-labelledby="boardTitle">
       <h2 id="boardTitle" hidden>6인용 사다리</h2>
-      <div class="start-grid" id="startGrid" aria-label="출발점"></div>
+      <div class="stage-scroll">
+        <div class="ladder-stage">
+          <div class="start-grid" id="startGrid" aria-label="출발점"></div>
 
-      <div class="ladder-wrap">
-        <svg id="ladder" viewBox="0 0 600 450" role="group" aria-label="가로줄을 직접 편집할 수 있는 사다리">
-          <defs>
-            <linearGradient id="routeGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#6ee7ff"/>
-              <stop offset="1" stop-color="#a78bfa"/>
-            </linearGradient>
-            <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
-              <feGaussianBlur stdDeviation="3" result="blur"/>
-              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-            </filter>
-            <filter id="dotGlow" x="-100%" y="-100%" width="300%" height="300%">
-              <feGaussianBlur stdDeviation="5" result="blur"/>
-              <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-            </filter>
-          </defs>
-          <g id="ladderLines"></g>
-          <g id="animationLayer"></g>
-          <g id="interactionLayer"></g>
-        </svg>
+          <div class="ladder-wrap">
+            <svg id="ladder" viewBox="0 0 600 450" role="group" aria-label="가로줄을 직접 편집할 수 있는 사다리">
+              <defs>
+                <linearGradient id="routeGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="#6ee7ff"/>
+                  <stop offset="1" stop-color="#a78bfa"/>
+                </linearGradient>
+                <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+                  <feGaussianBlur stdDeviation="3" result="blur"/>
+                  <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                </filter>
+                <filter id="dotGlow" x="-100%" y="-100%" width="300%" height="300%">
+                  <feGaussianBlur stdDeviation="5" result="blur"/>
+                  <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                </filter>
+              </defs>
+              <g id="ladderLines"></g>
+              <g id="animationLayer"></g>
+              <g id="interactionLayer"></g>
+            </svg>
+          </div>
+
+          <div class="result-grid" id="resultGrid" aria-label="도착점"></div>
+        </div>
       </div>
-
-      <div class="result-grid" id="resultGrid" aria-label="도착점"></div>
       <p class="status" id="status" aria-live="polite">출발점을 선택해 주세요</p>
+      <section class="summary" id="summary" aria-labelledby="summaryTitle" hidden>
+        <h3 id="summaryTitle">전체 결과</h3>
+        <div class="summary-grid" id="summaryGrid"></div>
+      </section>
     </section>
 
     <div class="legend" aria-hidden="true">
       <span><i></i>사다리</span>
       <span><i></i>선택한 경로</span>
     </div>
+
+    <section class="experiment" aria-labelledby="experimentTitle">
+      <div class="experiment-head">
+        <div>
+          <h2 id="experimentTitle">공평성 실험</h2>
+          <p class="experiment-copy" id="experimentCopy">현재 인원으로 가로줄 10개짜리 무작위 사다리를 만듭니다.</p>
+        </div>
+        <div class="experiment-actions">
+          <label class="count-control" for="experimentRuns">
+            횟수
+            <select id="experimentRuns" aria-label="실험 횟수">
+              <option value="100">100회</option>
+              <option value="1000">1,000회</option>
+              <option value="10000" selected>10,000회</option>
+            </select>
+          </label>
+          <button class="tool-button primary" id="runExperiment" type="button">실험 시작</button>
+          <button class="tool-button" id="runAutoExperiment" type="button">자동 실험</button>
+        </div>
+      </div>
+      <div class="experiment-progress" id="experimentProgress" hidden>
+        <progress id="experimentBar" max="10000" value="0"></progress>
+        <span id="experimentPercent">0%</span>
+      </div>
+      <div class="experiment-comparison">
+        <section class="experiment-panel" aria-labelledby="currentResultTitle">
+          <div class="experiment-panel-head">
+            <h3 id="currentResultTitle">이번 결과</h3>
+            <p class="experiment-meta" id="currentMeta">아직 결과 없음</p>
+          </div>
+          <div class="heatmap-wrap" id="currentHeatmap">
+            <p class="experiment-empty" id="currentEmpty">실험을 시작하면 결과가 표시됩니다.</p>
+          </div>
+        </section>
+        <section class="experiment-panel" aria-labelledby="previousResultTitle">
+          <div class="experiment-panel-head">
+            <h3 id="previousResultTitle">바로 전 결과</h3>
+            <p class="experiment-meta" id="previousMeta">아직 결과 없음</p>
+          </div>
+          <div class="heatmap-wrap" id="previousHeatmap">
+            <p class="experiment-empty" id="previousEmpty">다음 실험부터 비교 결과가 남습니다.</p>
+          </div>
+        </section>
+      </div>
+      <section class="auto-chart-panel" aria-labelledby="autoChartTitle">
+        <div class="auto-chart-head">
+          <h3 id="autoChartTitle">가로줄 개수별 제자리 도착률</h3>
+          <p class="experiment-meta" id="autoChartMeta">자동 실험 전</p>
+        </div>
+        <div class="auto-chart-wrap" id="autoChartWrap">
+          <p class="experiment-empty" id="autoChartEmpty">자동 실험을 누르면 7가지 가로줄 수를 각각 10,000번 계산합니다.</p>
+        </div>
+      </section>
+    </section>
   </main>
 
   <script>
@@ -381,26 +849,68 @@
       "use strict";
 
       const NS = "http://www.w3.org/2000/svg";
-      const RAIL_COUNT = 6;
-      const RUNG_COUNT = 10;
       const TOP = 12;
       const BOTTOM = 438;
-      const X_POSITIONS = [50, 150, 250, 350, 450, 550];
-      const LEVELS = Array.from({ length: 17 }, (_, index) => 42 + index * 22);
+      const LEVELS = Array.from({ length: 50 }, (_, index) => 30 + index * 8);
+      const AUTO_RUNG_COUNTS = [3, 6, 10, 15, 20, 30, 50];
+      const AUTO_RUNS = 10000;
+      const PERSON_COLORS = [
+        "#6ee7ff", "#ff7a9e", "#ffd166", "#8ee48f",
+        "#b692ff", "#ff9f68", "#64a8ff", "#f48cff"
+      ];
 
       const startGrid = document.querySelector("#startGrid");
       const resultGrid = document.querySelector("#resultGrid");
+      const boardTitle = document.querySelector("#boardTitle");
       const ladder = document.querySelector("#ladder");
       const ladderLines = document.querySelector("#ladderLines");
       const animationLayer = document.querySelector("#animationLayer");
       const interactionLayer = document.querySelector("#interactionLayer");
+      const participantCountSelect = document.querySelector("#participantCount");
+      const rungCountSlider = document.querySelector("#rungCount");
+      const rungCountValue = document.querySelector("#rungCountValue");
       const randomizeButton = document.querySelector("#randomize");
       const clearAllButton = document.querySelector("#clearAll");
+      const hideRungsButton = document.querySelector("#hideRungs");
+      const startAllButton = document.querySelector("#startAll");
       const status = document.querySelector("#status");
+      const summary = document.querySelector("#summary");
+      const summaryGrid = document.querySelector("#summaryGrid");
+      const experimentCopy = document.querySelector("#experimentCopy");
+      const experimentRunsSelect = document.querySelector("#experimentRuns");
+      const runExperimentButton = document.querySelector("#runExperiment");
+      const runAutoExperimentButton = document.querySelector("#runAutoExperiment");
+      const experimentProgress = document.querySelector("#experimentProgress");
+      const experimentBar = document.querySelector("#experimentBar");
+      const experimentPercent = document.querySelector("#experimentPercent");
+      const currentHeatmap = document.querySelector("#currentHeatmap");
+      const previousHeatmap = document.querySelector("#previousHeatmap");
+      const currentEmpty = document.querySelector("#currentEmpty");
+      const previousEmpty = document.querySelector("#previousEmpty");
+      const currentMeta = document.querySelector("#currentMeta");
+      const previousMeta = document.querySelector("#previousMeta");
+      const autoChartWrap = document.querySelector("#autoChartWrap");
+      const autoChartEmpty = document.querySelector("#autoChartEmpty");
+      const autoChartMeta = document.querySelector("#autoChartMeta");
 
+      let participantCount = 6;
+      let rungCount = 10;
+      let xPositions = getXPositions(participantCount);
+      let names = Array.from({ length: 8 }, (_, index) => `이름 ${index + 1}`);
+      let results = Array.from({ length: 8 }, (_, index) => `결과 ${index + 1}`);
       let rungs = [];
+      let arrivals = new Map();
       let running = false;
+      let experimentRunning = false;
+      let currentExperimentResult = null;
+      let previousExperimentResult = null;
+      let rungsHidden = false;
       let animationFrame = 0;
+
+      function getXPositions(count) {
+        const gap = 500 / (count - 1);
+        return Array.from({ length: count }, (_, index) => 50 + gap * index);
+      }
 
       function secureRandomInt(max) {
         const limit = Math.floor(0x100000000 / max) * max;
@@ -409,6 +919,10 @@
           crypto.getRandomValues(value);
         } while (value[0] >= limit);
         return value[0] % max;
+      }
+
+      function fastRandomInt(max) {
+        return Math.floor(Math.random() * max);
       }
 
       function svgElement(name, attributes = {}) {
@@ -422,44 +936,78 @@
       function createControls() {
         startGrid.replaceChildren();
         resultGrid.replaceChildren();
+        startGrid.style.gridTemplateColumns = `repeat(${participantCount}, minmax(0, 1fr))`;
+        resultGrid.style.gridTemplateColumns = `repeat(${participantCount}, minmax(0, 1fr))`;
+        boardTitle.textContent = `${participantCount}인용 사다리`;
 
-        for (let index = 0; index < RAIL_COUNT; index += 1) {
+        for (let index = 0; index < participantCount; index += 1) {
+          const participantCell = document.createElement("div");
+          participantCell.className = "participant-cell";
+
+          const nameInput = document.createElement("input");
+          nameInput.type = "text";
+          nameInput.className = "entry-input name-input";
+          nameInput.value = names[index];
+          nameInput.placeholder = `이름 ${index + 1}`;
+          nameInput.maxLength = 18;
+          nameInput.setAttribute("aria-label", `${index + 1}번 참가자 이름`);
+          nameInput.addEventListener("input", event => {
+            names[index] = event.target.value;
+            start.setAttribute("aria-label", `${getName(index)} 출발`);
+          });
+
           const start = document.createElement("button");
           start.type = "button";
           start.className = "start";
           start.textContent = String(index + 1);
-          start.setAttribute("aria-label", `${index + 1}번 출발`);
+          start.setAttribute("aria-label", `${getName(index)} 출발`);
           start.addEventListener("click", () => traceFrom(index));
-          startGrid.append(start);
+          participantCell.append(nameInput, start);
+          startGrid.append(participantCell);
 
           const result = document.createElement("div");
           result.className = "result";
-          result.textContent = String(index + 1);
           result.setAttribute("aria-label", `${index + 1}번 도착점`);
+
+          const resultInput = document.createElement("input");
+          resultInput.type = "text";
+          resultInput.className = "entry-input result-input";
+          resultInput.value = results[index];
+          resultInput.placeholder = `결과 ${index + 1}`;
+          resultInput.maxLength = 18;
+          resultInput.setAttribute("aria-label", `${index + 1}번 도착 결과`);
+          resultInput.addEventListener("input", event => {
+            results[index] = event.target.value;
+          });
+          result.append(resultInput);
           resultGrid.append(result);
         }
       }
 
-      function generateRungs() {
+      function getName(index) {
+        return names[index].trim() || `이름 ${index + 1}`;
+      }
+
+      function getResult(index) {
+        return results[index].trim() || `결과 ${index + 1}`;
+      }
+
+      function generateRungs(targetCount = rungCount, randomInt = secureRandomInt) {
         const placed = [];
         const occupiedByLevel = new Map();
 
-        while (placed.length < RUNG_COUNT) {
-          const candidates = [];
-          for (let levelIndex = 0; levelIndex < LEVELS.length; levelIndex += 1) {
-            const occupied = occupiedByLevel.get(levelIndex) || new Set();
-            for (let left = 0; left < RAIL_COUNT - 1; left += 1) {
-              const touchesAnother = occupied.has(left) || occupied.has(left - 1) || occupied.has(left + 1);
-              if (!touchesAnother) candidates.push({ levelIndex, left });
-            }
+        while (placed.length < targetCount) {
+          const levelIndex = randomInt(LEVELS.length);
+          const left = randomInt(participantCount - 1);
+          const occupied = occupiedByLevel.get(levelIndex) || new Set();
+          if (occupied.has(left) || occupied.has(left - 1) || occupied.has(left + 1)) {
+            continue;
           }
-
-          const choice = candidates[secureRandomInt(candidates.length)];
-          if (!occupiedByLevel.has(choice.levelIndex)) {
-            occupiedByLevel.set(choice.levelIndex, new Set());
+          if (!occupiedByLevel.has(levelIndex)) {
+            occupiedByLevel.set(levelIndex, occupied);
           }
-          occupiedByLevel.get(choice.levelIndex).add(choice.left);
-          placed.push({ left: choice.left, y: LEVELS[choice.levelIndex] });
+          occupied.add(left);
+          placed.push({ left, y: LEVELS[levelIndex] });
         }
 
         return placed.sort((a, b) => a.y - b.y || a.left - b.left);
@@ -469,7 +1017,7 @@
         ladderLines.replaceChildren();
         interactionLayer.replaceChildren();
 
-        for (const x of X_POSITIONS) {
+        for (const x of xPositions) {
           ladderLines.append(svgElement("line", {
             class: "rail",
             x1: x,
@@ -482,15 +1030,15 @@
         for (const rung of rungs) {
           ladderLines.append(svgElement("line", {
             class: "rung",
-            x1: X_POSITIONS[rung.left],
+            x1: xPositions[rung.left],
             y1: rung.y,
-            x2: X_POSITIONS[rung.left + 1],
+            x2: xPositions[rung.left + 1],
             y2: rung.y
           }));
         }
 
         for (const y of LEVELS) {
-          for (let left = 0; left < RAIL_COUNT - 1; left += 1) {
+          for (let left = 0; left < participantCount - 1; left += 1) {
             const filled = rungs.some(rung => rung.left === left && rung.y === y);
             const slot = svgElement("g", {
               class: `rung-slot${filled ? " filled" : ""}`,
@@ -502,17 +1050,17 @@
             slot.append(
               svgElement("rect", {
                 class: "hit-area",
-                x: X_POSITIONS[left] + 5,
-                y: y - 10,
-                width: X_POSITIONS[left + 1] - X_POSITIONS[left] - 10,
-                height: 20,
-                rx: 10
+                x: xPositions[left] + 5,
+                y: y - 4,
+                width: xPositions[left + 1] - xPositions[left] - 10,
+                height: 8,
+                rx: 4
               }),
               svgElement("line", {
                 class: "slot-preview",
-                x1: X_POSITIONS[left] + 8,
+                x1: xPositions[left] + 8,
                 y1: y,
-                x2: X_POSITIONS[left + 1] - 8,
+                x2: xPositions[left + 1] - 8,
                 y2: y
               })
             );
@@ -529,8 +1077,8 @@
       }
 
       function toggleRung(left, y) {
-        if (running) return;
-        clearOutcome();
+        if (running || experimentRunning) return;
+        resetGameResults();
 
         const existingIndex = rungs.findIndex(rung => rung.left === left && rung.y === y);
         if (existingIndex >= 0) {
@@ -554,58 +1102,105 @@
 
       function buildRoute(startIndex) {
         let current = startIndex;
-        let d = `M ${X_POSITIONS[current]} ${TOP}`;
+        let d = `M ${xPositions[current]} ${TOP}`;
 
         for (const rung of rungs) {
           if (rung.left === current) {
-            d += ` L ${X_POSITIONS[current]} ${rung.y} L ${X_POSITIONS[current + 1]} ${rung.y}`;
+            d += ` L ${xPositions[current]} ${rung.y} L ${xPositions[current + 1]} ${rung.y}`;
             current += 1;
           } else if (rung.left + 1 === current) {
-            d += ` L ${X_POSITIONS[current]} ${rung.y} L ${X_POSITIONS[current - 1]} ${rung.y}`;
+            d += ` L ${xPositions[current]} ${rung.y} L ${xPositions[current - 1]} ${rung.y}`;
             current -= 1;
           }
         }
 
-        d += ` L ${X_POSITIONS[current]} ${BOTTOM}`;
+        d += ` L ${xPositions[current]} ${BOTTOM}`;
         return { d, destination: current };
       }
 
-      function setRunningState(isRunning, selectedIndex = -1) {
+      function setRunningState(isRunning, selectedIndex = -1, selectAll = false) {
         running = isRunning;
-        [...startGrid.children].forEach((button, index) => {
-          button.disabled = isRunning;
-          button.classList.toggle("active", isRunning && index === selectedIndex);
+        const locked = isRunning || experimentRunning;
+        document.querySelectorAll(".start").forEach((button, index) => {
+          button.disabled = locked;
+          button.classList.toggle("active", isRunning && (selectAll || index === selectedIndex));
         });
-        randomizeButton.disabled = isRunning;
-        clearAllButton.disabled = isRunning;
-        ladder.classList.toggle("editing-disabled", isRunning);
+        document.querySelectorAll(".entry-input").forEach(input => {
+          input.disabled = locked;
+        });
+        participantCountSelect.disabled = locked;
+        randomizeButton.disabled = locked;
+        clearAllButton.disabled = locked;
+        hideRungsButton.disabled = locked;
+        startAllButton.disabled = locked;
+        rungCountSlider.disabled = locked;
+        experimentRunsSelect.disabled = locked;
+        runExperimentButton.disabled = locked;
+        runAutoExperimentButton.disabled = locked;
+        ladder.classList.toggle("editing-disabled", locked);
       }
 
-      function clearOutcome() {
+      function clearVisualOutcome() {
         cancelAnimationFrame(animationFrame);
         animationLayer.replaceChildren();
-        document.querySelectorAll(".result").forEach(item => item.classList.remove("arrived"));
+        document.querySelectorAll(".result").forEach(item => {
+          item.classList.remove("arrived");
+          item.style.removeProperty("--arrival-color");
+        });
         document.querySelectorAll(".start").forEach(item => item.classList.remove("active"));
       }
 
-      function traceFrom(startIndex) {
-        if (running) return;
-        clearOutcome();
-        setRunningState(true, startIndex);
-        status.textContent = `${startIndex + 1}번 경로를 따라가는 중…`;
+      function resetGameResults() {
+        clearVisualOutcome();
+        arrivals.clear();
+        summary.hidden = true;
+        summaryGrid.replaceChildren();
+      }
 
+      function setRungsHidden(hidden) {
+        rungsHidden = hidden;
+        ladder.classList.toggle("rungs-hidden", hidden);
+        hideRungsButton.classList.toggle("is-hiding", hidden);
+        hideRungsButton.textContent = hidden ? "다시 보기" : "가리기";
+        hideRungsButton.setAttribute("aria-pressed", String(hidden));
+      }
+
+      function revealRungs() {
+        if (rungsHidden) setRungsHidden(false);
+      }
+
+      function toggleRungsVisibility() {
+        if (running) return;
+        const willHide = !rungsHidden;
+        if (willHide) resetGameResults();
+        setRungsHidden(willHide);
+        status.textContent = willHide
+          ? "가로줄을 가렸습니다 · 출발하면 다시 나타납니다"
+          : "가로줄을 다시 표시했습니다";
+      }
+
+      function createRouteVisual(startIndex) {
         const { d, destination } = buildRoute(startIndex);
+        const color = PERSON_COLORS[startIndex];
         const shadow = svgElement("path", { class: "route-shadow", d });
         const route = svgElement("path", { class: "route", d });
-        const dot = svgElement("circle", { class: "traveler", r: 7, cx: X_POSITIONS[startIndex], cy: TOP });
+        const dot = svgElement("circle", { class: "traveler", r: 7, cx: xPositions[startIndex], cy: TOP });
+
+        shadow.style.stroke = color;
+        route.style.stroke = color;
+        dot.style.fill = color;
+        dot.style.stroke = color;
         animationLayer.append(shadow, route, dot);
 
         const length = route.getTotalLength();
-        route.style.strokeDasharray = String(length);
-        route.style.strokeDashoffset = String(length);
-        shadow.style.strokeDasharray = String(length);
-        shadow.style.strokeDashoffset = String(length);
+        for (const path of [route, shadow]) {
+          path.style.strokeDasharray = String(length);
+          path.style.strokeDashoffset = String(length);
+        }
+        return { startIndex, destination, color, shadow, route, dot, length };
+      }
 
+      function animateRoutes(visuals, onComplete) {
         const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
         const duration = reduceMotion ? 850 : 4300;
         const startedAt = performance.now();
@@ -613,48 +1208,492 @@
         function animate(now) {
           const progress = Math.min((now - startedAt) / duration, 1);
           const eased = 1 - Math.pow(1 - progress, 2);
-          const traveled = length * eased;
-          const point = route.getPointAtLength(traveled);
 
-          route.style.strokeDashoffset = String(length - traveled);
-          shadow.style.strokeDashoffset = String(length - traveled);
-          dot.setAttribute("cx", point.x);
-          dot.setAttribute("cy", point.y);
+          for (const visual of visuals) {
+            const traveled = visual.length * eased;
+            const point = visual.route.getPointAtLength(traveled);
+            visual.route.style.strokeDashoffset = String(visual.length - traveled);
+            visual.shadow.style.strokeDashoffset = String(visual.length - traveled);
+            visual.dot.setAttribute("cx", point.x);
+            visual.dot.setAttribute("cy", point.y);
+          }
 
           if (progress < 1) {
             animationFrame = requestAnimationFrame(animate);
             return;
           }
-
-          document.querySelectorAll(".result")[destination].classList.add("arrived");
-          status.innerHTML = `${startIndex + 1}번은 <strong>${destination + 1}번 칸</strong>에 도착했습니다`;
-          setRunningState(false);
-          document.querySelectorAll(".start")[startIndex].classList.add("active");
+          onComplete();
         }
 
         animationFrame = requestAnimationFrame(animate);
       }
 
+      function recordArrival(startIndex, destination) {
+        arrivals.set(startIndex, destination);
+        const resultCard = document.querySelectorAll(".result")[destination];
+        resultCard.style.setProperty("--arrival-color", PERSON_COLORS[startIndex]);
+        resultCard.classList.add("arrived");
+      }
+
+      function renderSummaryIfComplete() {
+        if (arrivals.size !== participantCount) return;
+        summaryGrid.replaceChildren();
+
+        for (let startIndex = 0; startIndex < participantCount; startIndex += 1) {
+          const destination = arrivals.get(startIndex);
+          recordArrival(startIndex, destination);
+
+          const item = document.createElement("div");
+          item.className = "summary-item";
+          item.style.setProperty("--person-color", PERSON_COLORS[startIndex]);
+
+          const dot = document.createElement("span");
+          dot.className = "summary-dot";
+          dot.setAttribute("aria-hidden", "true");
+          const name = document.createElement("span");
+          name.className = "summary-name";
+          name.textContent = getName(startIndex);
+          const arrow = document.createElement("span");
+          arrow.className = "summary-arrow";
+          arrow.textContent = "→";
+          const result = document.createElement("span");
+          result.className = "summary-result";
+          result.textContent = getResult(destination);
+          item.append(dot, name, arrow, result);
+          summaryGrid.append(item);
+        }
+        summary.hidden = false;
+      }
+
+      function traceFrom(startIndex) {
+        if (running) return;
+        revealRungs();
+        clearVisualOutcome();
+        setRunningState(true, startIndex);
+        status.textContent = `${getName(startIndex)}의 경로를 따라가는 중…`;
+
+        const visual = createRouteVisual(startIndex);
+        animateRoutes([visual], () => {
+          recordArrival(startIndex, visual.destination);
+          const resultStrong = document.createElement("strong");
+          resultStrong.textContent = getResult(visual.destination);
+          status.replaceChildren(
+            document.createTextNode(`${getName(startIndex)} → `),
+            resultStrong,
+            document.createTextNode("에 도착했습니다")
+          );
+          setRunningState(false);
+          document.querySelectorAll(".start")[startIndex].classList.add("active");
+          renderSummaryIfComplete();
+        });
+      }
+
+      function traceAll() {
+        if (running) return;
+        revealRungs();
+        resetGameResults();
+        setRunningState(true, -1, true);
+        status.textContent = "모든 참가자가 경로를 따라가는 중…";
+
+        const visuals = Array.from({ length: participantCount }, (_, index) => createRouteVisual(index));
+        animateRoutes(visuals, () => {
+          for (const visual of visuals) recordArrival(visual.startIndex, visual.destination);
+          renderSummaryIfComplete();
+          status.textContent = "모두 도착했습니다 · 전체 결과를 확인해 주세요";
+          setRunningState(false);
+          document.querySelectorAll(".start").forEach(button => button.classList.add("active"));
+        });
+      }
+
+      function findDestination(startIndex, ladderRungs) {
+        let current = startIndex;
+        for (const rung of ladderRungs) {
+          if (rung.left === current) current += 1;
+          else if (rung.left + 1 === current) current -= 1;
+        }
+        return current;
+      }
+
+      function resetExperimentResults() {
+        currentExperimentResult = null;
+        previousExperimentResult = null;
+        experimentBar.value = 0;
+        experimentPercent.textContent = "0%";
+        experimentProgress.hidden = true;
+        currentEmpty.textContent = "실험을 시작하면 결과가 표시됩니다.";
+        previousEmpty.textContent = "다음 실험부터 비교 결과가 남습니다.";
+        currentHeatmap.replaceChildren(currentEmpty);
+        previousHeatmap.replaceChildren(previousEmpty);
+        currentMeta.textContent = "아직 결과 없음";
+        previousMeta.textContent = "아직 결과 없음";
+        updateExperimentReadyCopy();
+        runExperimentButton.textContent = "실험 시작";
+      }
+
+      function formatRuns(value) {
+        return Number(value).toLocaleString("ko-KR");
+      }
+
+      function updateExperimentReadyCopy() {
+        const runs = Number(experimentRunsSelect.value);
+        experimentCopy.textContent = `현재 ${participantCount}명으로 가로줄 ${rungCount}개짜리 무작위 사다리를 ${formatRuns(runs)}번 만듭니다.`;
+      }
+
+      function maxPercentage(result) {
+        if (!result) return 0;
+        return Math.max(...result.counts.flat()) / result.totalRuns * 100;
+      }
+
+      function renderHeatmap(result, target, sharedMaxPercentage) {
+        const { counts, totalRuns, people, startLabels, destinationLabels } = result;
+        const table = document.createElement("table");
+        table.className = "heatmap";
+        table.setAttribute("aria-label", `${formatRuns(totalRuns)}회 사다리 도착 비율`);
+
+        const thead = document.createElement("thead");
+        const headRow = document.createElement("tr");
+        const corner = document.createElement("th");
+        corner.scope = "col";
+        corner.textContent = "출발 ↓ / 도착 →";
+        headRow.append(corner);
+        for (let destination = 0; destination < people; destination += 1) {
+          const th = document.createElement("th");
+          th.scope = "col";
+          th.textContent = destinationLabels[destination];
+          headRow.append(th);
+        }
+        thead.append(headRow);
+        table.append(thead);
+
+        const tbody = document.createElement("tbody");
+        for (let startIndex = 0; startIndex < people; startIndex += 1) {
+          const row = document.createElement("tr");
+          const rowHeader = document.createElement("th");
+          rowHeader.scope = "row";
+          rowHeader.textContent = startLabels[startIndex];
+          row.append(rowHeader);
+
+          for (let destination = 0; destination < people; destination += 1) {
+            const count = counts[startIndex][destination];
+            const percentage = count / totalRuns * 100;
+            const intensity = sharedMaxPercentage === 0 ? 0 : percentage / sharedMaxPercentage;
+            const cell = document.createElement("td");
+            cell.style.background = `rgba(80, 180, 255, ${0.08 + intensity * 0.66})`;
+            cell.textContent = `${percentage.toFixed(2)}%`;
+
+            const countText = document.createElement("span");
+            countText.className = "heatmap-count";
+            countText.textContent = `${formatRuns(count)}회`;
+            cell.append(countText);
+            row.append(cell);
+          }
+          tbody.append(row);
+        }
+        table.append(tbody);
+        target.replaceChildren(table);
+      }
+
+      function renderExperimentComparison() {
+        const sharedMax = Math.max(
+          maxPercentage(currentExperimentResult),
+          maxPercentage(previousExperimentResult)
+        );
+
+        if (currentExperimentResult) {
+          renderHeatmap(currentExperimentResult, currentHeatmap, sharedMax);
+          currentMeta.textContent = `${currentExperimentResult.people}명 · 가로줄 ${currentExperimentResult.rungCount}개 · ${formatRuns(currentExperimentResult.totalRuns)}회`;
+        } else {
+          currentHeatmap.replaceChildren(currentEmpty);
+          currentMeta.textContent = "아직 결과 없음";
+        }
+
+        if (previousExperimentResult) {
+          renderHeatmap(previousExperimentResult, previousHeatmap, sharedMax);
+          previousMeta.textContent = `${previousExperimentResult.people}명 · 가로줄 ${previousExperimentResult.rungCount}개 · ${formatRuns(previousExperimentResult.totalRuns)}회`;
+        } else {
+          previousHeatmap.replaceChildren(previousEmpty);
+          previousMeta.textContent = "아직 결과 없음";
+        }
+      }
+
+      function runExperiment() {
+        if (running || experimentRunning) return;
+        const totalRuns = Number(experimentRunsSelect.value);
+        const batchSize = Math.max(50, Math.ceil(totalRuns / 50));
+        const counts = Array.from(
+          { length: participantCount },
+          () => Array(participantCount).fill(0)
+        );
+        let completed = 0;
+
+        experimentRunning = true;
+        setRunningState(false);
+        experimentProgress.hidden = false;
+        experimentBar.max = totalRuns;
+        experimentBar.value = 0;
+        experimentPercent.textContent = "0%";
+        experimentCopy.textContent = `${participantCount}명 · ${formatRuns(totalRuns)}회 실험 중`;
+        runExperimentButton.textContent = "실험 중…";
+
+        function runBatch() {
+          const batchEnd = Math.min(completed + batchSize, totalRuns);
+          for (; completed < batchEnd; completed += 1) {
+            const simulatedRungs = generateRungs(rungCount, fastRandomInt);
+            for (let startIndex = 0; startIndex < participantCount; startIndex += 1) {
+              const destination = findDestination(startIndex, simulatedRungs);
+              counts[startIndex][destination] += 1;
+            }
+          }
+
+          experimentBar.value = completed;
+          experimentPercent.textContent = `${Math.round(completed / totalRuns * 100)}%`;
+          if (completed < totalRuns) {
+            requestAnimationFrame(runBatch);
+            return;
+          }
+
+          previousExperimentResult = currentExperimentResult;
+          currentExperimentResult = {
+            counts,
+            totalRuns,
+            people: participantCount,
+            rungCount,
+            startLabels: Array.from({ length: participantCount }, (_, index) => getName(index)),
+            destinationLabels: Array.from({ length: participantCount }, (_, index) => getResult(index))
+          };
+          renderExperimentComparison();
+          experimentRunning = false;
+          setRunningState(false);
+          experimentCopy.textContent = `${participantCount}명 · 가로줄 ${rungCount}개 · ${formatRuns(totalRuns)}회 완료`;
+          runExperimentButton.textContent = "다시 실험";
+        }
+
+        requestAnimationFrame(runBatch);
+      }
+
+      function resetAutoExperimentResults() {
+        autoChartWrap.replaceChildren(autoChartEmpty);
+        autoChartMeta.textContent = "자동 실험 전";
+      }
+
+      function appendSvgText(parent, text, attributes) {
+        const element = svgElement("text", attributes);
+        element.textContent = text;
+        parent.append(element);
+        return element;
+      }
+
+      function renderAutoChart(data) {
+        const width = 760;
+        const height = 330;
+        const margin = { top: 42, right: 28, bottom: 55, left: 62 };
+        const chartWidth = width - margin.left - margin.right;
+        const chartHeight = height - margin.top - margin.bottom;
+        const fairRate = 100 / participantCount;
+        const highest = Math.max(fairRate, ...data.map(item => item.rate));
+        const yMax = Math.min(100, Math.max(25, Math.ceil((highest + 5) / 5) * 5));
+        const xAt = index => margin.left + chartWidth * index / (data.length - 1);
+        const yAt = value => margin.top + chartHeight * (1 - value / yMax);
+
+        const svg = svgElement("svg", {
+          class: "auto-chart",
+          viewBox: `0 0 ${width} ${height}`,
+          role: "img",
+          "aria-label": `가로줄 개수별 제자리 도착률. 완전히 공평할 때 ${fairRate.toFixed(1)}퍼센트`
+        });
+
+        for (let tick = 0; tick <= 5; tick += 1) {
+          const value = yMax * tick / 5;
+          const y = yAt(value);
+          svg.append(svgElement("line", {
+            class: "chart-grid",
+            x1: margin.left,
+            y1: y,
+            x2: width - margin.right,
+            y2: y
+          }));
+          appendSvgText(svg, `${value.toFixed(value % 1 ? 1 : 0)}%`, {
+            class: "chart-label",
+            x: margin.left - 10,
+            y: y + 4,
+            "text-anchor": "end"
+          });
+        }
+
+        svg.append(
+          svgElement("line", {
+            class: "chart-axis",
+            x1: margin.left,
+            y1: margin.top,
+            x2: margin.left,
+            y2: height - margin.bottom
+          }),
+          svgElement("line", {
+            class: "chart-axis",
+            x1: margin.left,
+            y1: height - margin.bottom,
+            x2: width - margin.right,
+            y2: height - margin.bottom
+          })
+        );
+
+        const fairY = yAt(fairRate);
+        svg.append(svgElement("line", {
+          class: "chart-fair",
+          x1: margin.left,
+          y1: fairY,
+          x2: width - margin.right,
+          y2: fairY
+        }));
+        appendSvgText(svg, `완전히 공평 ${fairRate.toFixed(1)}%`, {
+          class: "chart-fair-label",
+          x: margin.left + 10,
+          y: fairY - 9,
+          "text-anchor": "start"
+        });
+
+        const points = data.map((item, index) => `${xAt(index)},${yAt(item.rate)}`).join(" ");
+        svg.append(svgElement("polyline", { class: "chart-line", points }));
+
+        data.forEach((item, index) => {
+          const x = xAt(index);
+          const y = yAt(item.rate);
+          svg.append(svgElement("circle", { class: "chart-point", cx: x, cy: y, r: 6 }));
+          appendSvgText(svg, `${item.rate.toFixed(2)}%`, {
+            class: "chart-value",
+            x,
+            y: Math.max(18, y - 13)
+          });
+          appendSvgText(svg, `${item.rungCount}개`, {
+            class: "chart-label",
+            x,
+            y: height - margin.bottom + 25,
+            "text-anchor": "middle"
+          });
+        });
+
+        appendSvgText(svg, "가로줄 개수", {
+          class: "chart-label",
+          x: margin.left + chartWidth / 2,
+          y: height - 10,
+          "text-anchor": "middle"
+        });
+        autoChartWrap.replaceChildren(svg);
+        autoChartMeta.textContent = `${participantCount}명 · 각 10,000회`;
+      }
+
+      function runAutoExperiment() {
+        if (running || experimentRunning) return;
+        const totalCalculations = AUTO_RUNG_COUNTS.length * AUTO_RUNS;
+        const data = [];
+        let pointIndex = 0;
+        let completedForPoint = 0;
+        let stayingCount = 0;
+
+        experimentRunning = true;
+        setRunningState(false);
+        experimentProgress.hidden = false;
+        experimentBar.max = totalCalculations;
+        experimentBar.value = 0;
+        experimentPercent.textContent = "0%";
+        experimentCopy.textContent = `${participantCount}명 · 가로줄 7종 · 각 10,000회 자동 실험 중`;
+        runAutoExperimentButton.textContent = "자동 실험 중…";
+
+        function runBatch() {
+          const currentRungCount = AUTO_RUNG_COUNTS[pointIndex];
+          const batchEnd = Math.min(completedForPoint + 100, AUTO_RUNS);
+          for (; completedForPoint < batchEnd; completedForPoint += 1) {
+            const simulatedRungs = generateRungs(currentRungCount, fastRandomInt);
+            for (let startIndex = 0; startIndex < participantCount; startIndex += 1) {
+              if (findDestination(startIndex, simulatedRungs) === startIndex) stayingCount += 1;
+            }
+          }
+
+          const totalCompleted = pointIndex * AUTO_RUNS + completedForPoint;
+          experimentBar.value = totalCompleted;
+          experimentPercent.textContent = `${Math.round(totalCompleted / totalCalculations * 100)}%`;
+
+          if (completedForPoint === AUTO_RUNS) {
+            data.push({
+              rungCount: currentRungCount,
+              rate: stayingCount / (AUTO_RUNS * participantCount) * 100
+            });
+            pointIndex += 1;
+            completedForPoint = 0;
+            stayingCount = 0;
+          }
+
+          if (pointIndex < AUTO_RUNG_COUNTS.length) {
+            requestAnimationFrame(runBatch);
+            return;
+          }
+
+          renderAutoChart(data);
+          experimentRunning = false;
+          setRunningState(false);
+          experimentCopy.textContent = `${participantCount}명 · 가로줄 3·6·10·15·20·30·50개 · 각 10,000회 완료`;
+          runAutoExperimentButton.textContent = "자동 실험 다시 하기";
+        }
+
+        requestAnimationFrame(runBatch);
+      }
+
       function makeRandomLadder() {
         if (running) return;
-        clearOutcome();
+        resetGameResults();
+        revealRungs();
         rungs = generateRungs();
         drawLadder();
-        status.textContent = "가로줄 10개를 무작위로 그었습니다";
+        status.textContent = `가로줄 ${rungCount}개를 무작위로 그었습니다`;
       }
 
       function clearAllRungs() {
         if (running) return;
-        clearOutcome();
+        resetGameResults();
+        revealRungs();
         rungs = [];
         drawLadder();
         status.textContent = "모든 가로줄을 지웠습니다 · 빈 곳을 눌러 직접 그려 보세요";
       }
 
+      function changeRungCount() {
+        if (running || experimentRunning) return;
+        rungCount = Number(rungCountSlider.value);
+        rungCountValue.textContent = `${rungCount}개`;
+        makeRandomLadder();
+        updateExperimentReadyCopy();
+      }
+
+      function changeParticipantCount() {
+        if (running) return;
+        participantCount = Number(participantCountSelect.value);
+        xPositions = getXPositions(participantCount);
+        rungs = [];
+        resetGameResults();
+        revealRungs();
+        createControls();
+        makeRandomLadder();
+        resetExperimentResults();
+        resetAutoExperimentResults();
+        status.textContent = `${participantCount}명 사다리로 바꿨습니다 · 이름과 결과를 입력해 주세요`;
+      }
+
+      participantCountSelect.addEventListener("change", changeParticipantCount);
+      rungCountSlider.addEventListener("input", () => {
+        rungCountValue.textContent = `${rungCountSlider.value}개`;
+      });
+      rungCountSlider.addEventListener("change", changeRungCount);
       randomizeButton.addEventListener("click", makeRandomLadder);
       clearAllButton.addEventListener("click", clearAllRungs);
+      hideRungsButton.addEventListener("click", toggleRungsVisibility);
+      startAllButton.addEventListener("click", traceAll);
+      runExperimentButton.addEventListener("click", runExperiment);
+      runAutoExperimentButton.addEventListener("click", runAutoExperiment);
+      experimentRunsSelect.addEventListener("change", updateExperimentReadyCopy);
       createControls();
       makeRandomLadder();
+      resetExperimentResults();
+      resetAutoExperimentResults();
     })();
   </script>
 </body>
